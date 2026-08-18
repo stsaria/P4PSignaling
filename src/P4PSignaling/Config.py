@@ -13,7 +13,7 @@ class Config:
     BIND_PORT:int = int(os.getenv("BIND_PORT", "15987"))
     ED25519_PRIVATE_KEY_HEX:str = os.getenv("ED25519_PRIVATE_KEY_HEX", Ed25519Signer()._privateKey.private_bytes_raw().hex())
     GOSSIP_TTL_SECONDS:int = int(os.getenv("GOSSIP_TTL_SECONDS", "5"))
-    SYNC_PEER_COUNT_PER_ONE_TIME:int = int(os.getenv("SYNC_PEER_COUNT_PER_ONE_TIME", "5"))
+    SYNC_PEER_COUNT_PER_ONE_TIME:int = int(os.getenv("SYNC_PEER_COUNT_PER_ONE_TIME", "10"))
     SYNC_INTERVAL_SECOUNDS:int = int(os.getenv("SYNC_INTERVAL_SECOUNDS", "5"))
     MAXIMUM_NODES_COUNT:int = int(os.getenv("MAXIMUM_NODES_COUN", "100"))
     def save(self):
