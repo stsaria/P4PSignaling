@@ -1,0 +1,23 @@
+[project]
+name = "P4PSignaling"
+dynamic = ["version"]
+description = "A signaling server for p4p network."
+dependencies = [
+    "P4PNodeGossiper @ git+https://github.com/stsaria/P4PNodeGossiper.git@d",
+    "P4PCore @ git+https://github.com/stsaria/P4PCore.git",
+    "dotenv"
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.13"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
