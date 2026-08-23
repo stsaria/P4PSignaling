@@ -1,0 +1,26 @@
+services:
+  p4p-signaling:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: p4p-signaling:latest
+    container_name: p4p-signaling-node
+    restart: always
+    user: root
+    environment:
+      - BIND_IPV4
+      - BIND_PORT
+      - ED25519_PRIVATE_KEY_HEX
+      - GOSSIP_TTL_SECONDS
+      - SYNC_PEER_COUNT_PER_ONE_TIME
+      - SYNC_INTERVAL_SECOUNDS
+      - MAXIMUM_NODES_COUNT
+    volumes:
+      - ./.env:/app/.env
+    ports:
+      - "${BIND_PORT:-15987}:${BIND_PORT:-15987}/udp"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
