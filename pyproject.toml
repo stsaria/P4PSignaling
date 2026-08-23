@@ -1,9 +1,13 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "P4PSignaling"
 dynamic = ["version"]
 description = "A signaling server for p4p network."
 dependencies = [
-    "P4PNodeGossiper @ git+https://github.com/stsaria/P4PNodeGossiper.git@d",
+    "P4PNodeGossiper @ git+https://github.com/stsaria/P4PNodeGossiper.git",
     "P4PCore @ git+https://github.com/stsaria/P4PCore.git",
     "dotenv"
 ]
