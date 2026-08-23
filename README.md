@@ -9,16 +9,9 @@ A signaling server for the P4P network. Nodes exchange information over a UDP-ba
 
 ## Setup
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/stsaria/P4PSignaling.git
-cd P4PSignaling
-```
-
-### 2. Configure environment variables
-
-Create a `.env` file in the repository root. All variables are optional; any not set will fall back to the defaults below.
+1. Go to the [Releases page](https://github.com/stsaria/P4PSignaling/releases) and download the `docker-compose.yml` asset from the version you want to run.
+2. Place it in an empty directory.
+3. In the same directory, create a `.env` file. All variables are optional; any not set will fall back to the defaults below.
 
 | Variable | Description | Default |
 | --- | --- | --- |
@@ -35,8 +28,8 @@ Leave `ED25519_PRIVATE_KEY_HEX` unset for a first run — a key will be generate
 ## Run
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
+- The image is pulled automatically from `ghcr.io/stsaria/p4psignaling`.
 - The UDP port `15987` (or your custom `BIND_PORT`) is exposed.
-- `.env` is mounted into the container at `/app/.env`, so it must exist in the repository root before starting.
