@@ -15,7 +15,7 @@ class Config:
     GOSSIP_TTL_SECONDS:int = int(os.getenv("GOSSIP_TTL_SECONDS", "5"))
     SYNC_PEER_COUNT_PER_ONE_TIME:int = int(os.getenv("SYNC_PEER_COUNT_PER_ONE_TIME", "10"))
     SYNC_INTERVAL_SECOUNDS:int = int(os.getenv("SYNC_INTERVAL_SECOUNDS", "5"))
-    MAXIMUM_NODES_COUNT:int = int(os.getenv("MAXIMUM_NODES_COUN", "100"))
+    MAXIMUM_NODES_COUNT:int = int(os.getenv("MAXIMUM_NODES_COUNT", "100"))
     def save(self):
         data = asdict(self)
         with open(DOTENV_PATH, "w", encoding="utf-8") as f:
