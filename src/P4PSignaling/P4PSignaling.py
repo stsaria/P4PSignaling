@@ -1,3 +1,4 @@
+import importlib.metadata
 import logging
 import sys
 
@@ -42,7 +43,8 @@ class P4PSignaling:
         return inst
 
     async def begin(self) -> None:
-        self._logger.info(f"""Begin to a P4PSignaling server
+        self._logger.info(f"""Begin to a P4PSignaling server\n
+Version: {importlib.metadata.version('P4PSignaling')}
 BindV4:{self._runner.net.v4ListeningAddr}
 Ed25519 Public key hex:{self._runner.ed25519Signer.publicKey.publicKeyBytes.hex()}""")
         await self._runner.begin()
