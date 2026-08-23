@@ -126,7 +126,7 @@ jobs:
 
       - name: Generate production docker-compose.yml
         run: |
-          cat << 'EOF' > docker-compose.prod.yml
+          cat << 'EOF' > docker-compose.yml
           services:
             p4p-signaling:
               image: ghcr.io/${{ steps.string.outputs.IMAGE_NAME }}:${{ github.ref_name }}
@@ -153,4 +153,4 @@ jobs:
           prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
           files: |
             dist/*
-            docker-compose.prod.yml=>docker-compose.yml
+            docker-compose.yml
