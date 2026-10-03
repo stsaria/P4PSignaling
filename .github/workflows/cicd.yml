@@ -11,10 +11,6 @@ permissions:
   contents: write
   packages: write
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -38,31 +34,7 @@ jobs:
       - name: Run tests
         run: |
           pytest
-  #
-  docker-test-build:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/d'
-    needs: test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Lowercase Repository Name
-        id: string
-        run: |
-          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Test Build Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          tags: ${{ env.REGISTRY }}/${{ steps.string.outputs.IMAGE_NAME }}:test
-
+  
   release:
     needs: test
     if: startsWith(github.ref, 'refs/tags/')
@@ -87,63 +59,6 @@ jobs:
         run: |
           python -m build
       
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=${{ github.ref_name }}
-            type=raw,value=latest,enable=${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-      
-      - name: Lowercase Repository Name
-        id: string
-        run: |
-          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
-
-      - name: Generate production docker-compose.yml
-        run: |
-          cat << 'EOF' > docker-compose.yml
-          services:
-            p4p-signaling:
-              image: ghcr.io/${{ steps.string.outputs.IMAGE_NAME }}:${{ github.ref_name }}
-              container_name: p4p-signaling-node
-              restart: always
-              user: root
-              env_file:
-                - .env
-              ports:
-                - "${BIND_PORT:-15987}:${BIND_PORT:-15987}/udp"
-              logging:
-                driver: "json-file"
-                options:
-                  max-size: "10m"
-                  max-file: "3"
-          EOF
-      
       - name: Create GitHub Release and Upload Artifacts
         uses: softprops/action-gh-release@v2
         with:
@@ -153,4 +68,3 @@ jobs:
           prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
           files: |
             dist/*
-            docker-compose.yml

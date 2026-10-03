@@ -13,9 +13,10 @@ class Config:
     BIND_PORT:int = int(os.getenv("BIND_PORT", "15987"))
     ED25519_PRIVATE_KEY_HEX:str = os.getenv("ED25519_PRIVATE_KEY_HEX", Ed25519Signer()._privateKey.private_bytes_raw().hex())
     GOSSIP_TTL_SECONDS:int = int(os.getenv("GOSSIP_TTL_SECONDS", "5"))
-    SYNC_PEER_COUNT_PER_ONE_TIME:int = int(os.getenv("SYNC_PEER_COUNT_PER_ONE_TIME", "10"))
-    SYNC_INTERVAL_SECOUNDS:int = int(os.getenv("SYNC_INTERVAL_SECOUNDS", "5"))
+    SYNC_NODE_COUNT_PER_ONE_TIME:int = int(os.getenv("SYNC_NODE_COUNT_PER_ONE_TIME", "10"))
+    SYNC_INTERVAL_SECONDS:int = int(os.getenv("SYNC_INTERVAL_SECONDS", "5"))
     MAXIMUM_NODES_COUNT:int = int(os.getenv("MAXIMUM_NODES_COUNT", "100"))
+    DISABLE_SECURE_TRANSPORT:bool = os.getenv("DISABLE_SECURE_TRANSPORT", "true").lower() in ("true", "1", "t")
     def save(self):
         data = asdict(self)
         with open(DOTENV_PATH, "w", encoding="utf-8") as f:

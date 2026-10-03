@@ -7,8 +7,8 @@ name = "P4PSignaling"
 dynamic = ["version"]
 description = "A signaling server for p4p network."
 dependencies = [
-    "P4PNodeGossiper @ git+https://github.com/stsaria/P4PNodeGossiper.git",
-    "P4PCore @ git+https://github.com/stsaria/P4PCore.git",
+    "P4PCore>=1.0,<2.0",
+    "P4PNodeGossiper>=1.0,<2.0",
     "dotenv"
 ]
 license = { file = "LICENSE" }
