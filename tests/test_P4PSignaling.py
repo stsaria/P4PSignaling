@@ -44,8 +44,8 @@ class TestP4PSignaling:
 
         gossiper = signaling._nodeGossiper._gossiper
         assert gossiper._gossipTTLSeconds == Config.GOSSIP_TTL_SECONDS
-        assert gossiper._syncPeerCountPerOneTime == Config.SYNC_PEER_COUNT_PER_ONE_TIME
-        assert gossiper._syncIntervalSeconds == Config.SYNC_INTERVAL_SECOUNDS
+        assert gossiper._syncNodeCountPerOneTime == Config.SYNC_NODE_COUNT_PER_ONE_TIME
+        assert gossiper._syncIntervalSeconds == Config.SYNC_INTERVAL_SECONDS
         assert gossiper._maximumSavedDataCount == Config.MAXIMUM_NODES_COUNT
 
         await signaling.end()
@@ -68,7 +68,7 @@ class TestP4PSignaling:
 
         await asyncio.sleep(0)
 
-        node = _makeNode(port=39999)
+        node = _makeNode(port=18805)
         await signalingB._nodeGossiper.addNode(node)
 
         signalingB._nodeGossiper._gossiper._gossip(
