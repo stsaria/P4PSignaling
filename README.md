@@ -13,4 +13,4 @@ curl -sSL https://raw.githubusercontent.com/stsaria/p4p/main/install.sh | bash
 
 python3 -m P4PSignaling
 ```
-But, you can't run P4PSignaling with alpha version. So If you want to download
+But, you can't run P4PSignaling with alpha version.
