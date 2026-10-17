@@ -2,7 +2,7 @@ import os
 from dataclasses import asdict, dataclass
 from dotenv import load_dotenv
 
-from P4PCore.model.Ed25519Signer import Ed25519Signer
+from P4PCore.common.model.Ed25519Signer import Ed25519Signer
 
 DOTENV_PATH = ".env"
 load_dotenv(DOTENV_PATH)
@@ -17,6 +17,9 @@ class Config:
     SYNC_INTERVAL_SECONDS:int = int(os.getenv("SYNC_INTERVAL_SECONDS", "5"))
     MAXIMUM_NODES_COUNT:int = int(os.getenv("MAXIMUM_NODES_COUNT", "100"))
     DISABLE_SECURE_TRANSPORT:bool = os.getenv("DISABLE_SECURE_TRANSPORT", "true").lower() in ("true", "1", "t")
+    MINIMUM_NODES_COUNT:int = int(os.getenv("MINIMUM_NODES_COUNT", "20"))
+    MAGIC_STR:str = os.getenv("MAGIC", "P4P5")
+    NET_SEMAPHORE_LIMITS:int = int(os.getenv("NET_SEMAPHORE_LIMITS", "500"))
     def save(self):
         data = asdict(self)
         with open(DOTENV_PATH, "w", encoding="utf-8") as f:

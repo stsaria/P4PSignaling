@@ -3,11 +3,11 @@ import logging
 import sys
 
 from P4PCore.P4PRunner import P4PRunner
-from P4PCore.model.Ed25519Signer import Ed25519Signer
-from P4PCore.util.BytesCoverter import itob
-from P4PCore.protocol.Protocol import PacketFlag, PacketElementSize
+from P4PCore.common.model.Ed25519Signer import Ed25519Signer
+from P4PCore.common.util.BytesCoverter import itob
+from P4PCore.core.protocol.Protocol import PacketFlag, PacketElementSize, STR_ENCODING
 
-from P4PNodeGossiper.NodeGossiper import EventListener, NodeGossipRecvedEvent, NodeGossiper
+from P4PCore.plugin.append.nodeGossiper.NodeGossiper import NodeGossiper
 
 from P4PSignaling.Config import Config
 
@@ -19,11 +19,6 @@ class P4PSignaling:
     async def create(cls) -> "P4PSignaling":
         inst = cls()
 
-        inst._runner = await P4PRunner.create(Ed25519Signer(bytes.fromhex(Config.ED25519_PRIVATE_KEY_HEX)))
-
-        if Config.DISABLE_SECURE_TRANSPORT:
-            await inst._runner.baseUserNet.deleteHandler(itob(PacketFlag.SECURE, PacketElementSize.PACKET_FLAG))
-
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(
             logging.Formatter(
@@ -31,26 +26,36 @@ class P4PSignaling:
                 datefmt="%Y-%m-%dT%H:%M:%S%z",
             )
         )
-        await inst._runner.loggerHandlersManager.insertNext(handler)
 
-        inst._nodeGossiper = await NodeGossiper.create(
+        inst._runner = P4PRunner(
+            ed25519Signer=Ed25519Signer(bytes.fromhex(Config.ED25519_PRIVATE_KEY_HEX)),
+            magic=Config.MAGIC_STR.encode(encoding=STR_ENCODING),
+            loggerHandlers=[handler],
+            netV4ListeningAddr=(Config.BIND_IPV4, Config.BIND_PORT)
+        )
+
+        inst._runner.net.semaphoreLimits = Config.NET_SEMAPHORE_LIMITS
+
+        if Config.DISABLE_SECURE_TRANSPORT:
+            inst._runner.baseUserNet.deleteHandler(itob(PacketFlag.SECURE, PacketElementSize.PACKET_FLAG))
+
+        inst._nodeGossiper = NodeGossiper(
             inst._runner,
             gossipTTLSeconds=Config.GOSSIP_TTL_SECONDS,
             syncNodeCountPerOneTime=Config.SYNC_NODE_COUNT_PER_ONE_TIME,
             syncIntervalSeconds=Config.SYNC_INTERVAL_SECONDS,
-            maximumNodesCount=Config.MAXIMUM_NODES_COUNT
+            maximumNodesCount=Config.MAXIMUM_NODES_COUNT,
+            minimumNodesCount=Config.MINIMUM_NODES_COUNT
         )
 
-        inst._logger = await inst._runner.getLogger("P4PSignaling")
-
-        inst._runner.net.v4ListeningAddr = (Config.BIND_IPV4, Config.BIND_PORT)
+        inst._logger = inst._runner.getLogger(__name__)
 
         return inst
 
     async def begin(self) -> None:
         self._logger.info(f"""Begin to a P4PSignaling server\n
 Version: {importlib.metadata.version('P4PSignaling')}
-BindV4:{self._runner.net.v4ListeningAddr}
+BindV4:{(Config.BIND_IPV4, Config.BIND_PORT)}
 Ed25519 Public key hex:{self._runner.ed25519Signer.publicKey.publicKeyBytes.hex()}""")
         await self._runner.begin()
 
