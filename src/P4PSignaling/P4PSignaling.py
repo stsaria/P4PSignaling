@@ -1,5 +1,6 @@
 import importlib.metadata
 import logging
+from logging import Logger
 import sys
 
 from P4PCore.P4PRunner import P4PRunner
@@ -12,13 +13,7 @@ from P4PCore.plugin.append.nodeGossiper.NodeGossiper import NodeGossiper
 from P4PSignaling.Config import Config
 
 class P4PSignaling:
-    _runner:P4PRunner
-    _nodeGossiper:NodeGossiper
-    _logger:logging.Logger
-    @classmethod
-    async def create(cls) -> "P4PSignaling":
-        inst = cls()
-
+    def __init__(self):
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(
             logging.Formatter(
@@ -27,20 +22,20 @@ class P4PSignaling:
             )
         )
 
-        inst._runner = P4PRunner(
+        self._runner:P4PRunner = P4PRunner(
             ed25519Signer=Ed25519Signer(bytes.fromhex(Config.ED25519_PRIVATE_KEY_HEX)),
             magic=Config.MAGIC_STR.encode(encoding=STR_ENCODING),
             loggerHandlers=[handler],
             netV4ListeningAddr=(Config.BIND_IPV4, Config.BIND_PORT)
         )
 
-        inst._runner.net.semaphoreLimits = Config.NET_SEMAPHORE_LIMITS
+        self._runner.net.semaphoreLimits = Config.NET_SEMAPHORE_LIMITS
 
         if Config.DISABLE_SECURE_TRANSPORT:
-            inst._runner.baseUserNet.deleteHandler(itob(PacketFlag.SECURE, PacketElementSize.PACKET_FLAG))
+            self._runner.baseUserNet.deleteHandler(itob(PacketFlag.SECURE, PacketElementSize.PACKET_FLAG))
 
-        inst._nodeGossiper = NodeGossiper(
-            inst._runner,
+        self._nodeGossiper:NodeGossiper = NodeGossiper(
+            self._runner,
             gossipTTLSeconds=Config.GOSSIP_TTL_SECONDS,
             syncNodeCountPerOneTime=Config.SYNC_NODE_COUNT_PER_ONE_TIME,
             syncIntervalSeconds=Config.SYNC_INTERVAL_SECONDS,
@@ -48,9 +43,7 @@ class P4PSignaling:
             minimumNodesCount=Config.MINIMUM_NODES_COUNT
         )
 
-        inst._logger = inst._runner.getLogger(__name__)
-
-        return inst
+        self._logger:Logger = self._runner.getLogger(__name__)
 
     async def begin(self) -> None:
         self._logger.info(f"""Begin to a P4PSignaling server\n
@@ -58,8 +51,10 @@ Version: {importlib.metadata.version('P4PSignaling')}
 BindV4:{(Config.BIND_IPV4, Config.BIND_PORT)}
 Ed25519 Public key hex:{self._runner.ed25519Signer.publicKey.publicKeyBytes.hex()}""")
         await self._runner.begin()
+        await self._nodeGossiper.begin()
 
     async def end(self) -> None:
+        await self._nodeGossiper.end()
         await self._runner.end()
 
 

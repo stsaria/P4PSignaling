@@ -4,7 +4,7 @@ from P4PSignaling.P4PSignaling import P4PSignaling
 
 async def amain() -> None:
     print("Start")
-    signaling = await P4PSignaling.create()
+    signaling = P4PSignaling()
     try:
         await signaling.begin()
 
