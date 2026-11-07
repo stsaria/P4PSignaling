@@ -36,7 +36,7 @@ jobs:
         run: |
           pytest
   
-  release:
+  build-package:
     needs: test
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
@@ -54,12 +54,87 @@ jobs:
       - name: Install build tool
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          pip install build "Nuitka[onefile]"
+          pip install git+https://github.com/stsaria/P4PCore.git@d
+          pip install .
 
       - name: Build Python package
         run: |
           python -m build
-      
+
+      - name: Upload Python package
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package
+          path: dist/*
+
+  build-binary:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: linux-x86_64
+            filename: P4PSignaling-linux-x86_64
+          - os: windows-latest
+            artifact: windows-x86_64
+            filename: P4PSignaling-windows-x86_64.exe
+          - os: macos-15-intel
+            artifact: macos-x86_64
+            filename: P4PSignaling-macos-x86_64
+          - os: macos-14
+            artifact: macos-arm64
+            filename: P4PSignaling-macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install build tool and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "Nuitka[onefile]"
+          pip install git+https://github.com/stsaria/P4PCore.git@d
+          pip install .
+
+      - name: Build single-file binary
+        run: >-
+          python -m nuitka
+          --onefile
+          --output-dir=dist
+          --output-filename="${{ matrix.filename }}"
+          --remove-output
+          --include-package=P4PSignaling
+          --include-distribution-metadata=P4PSignaling
+          src/launcher.py
+
+      - name: Upload single-file binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.artifact }}
+          path: dist/${{ matrix.filename }}
+
+  release:
+    needs:
+      - build-package
+      - build-binary
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
       - name: Create GitHub Release and Upload Artifacts
         uses: softprops/action-gh-release@v2
         with:
