@@ -117,7 +117,7 @@ jobs:
         run: >-
           python -m nuitka
           --onefile
-          --accept-downloads
+          --assume-yes-for-downloads
           --output-dir=dist
           --output-filename="${{ matrix.filename }}"
           --remove-output
