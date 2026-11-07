@@ -80,10 +80,10 @@ jobs:
           - os: windows-latest
             artifact: windows-x86_64
             filename: P4PSignaling-windows-x86_64.exe
-          - os: macos-15-intel
+          - os: macos-13
             artifact: macos-x86_64
             filename: P4PSignaling-macos-x86_64
-          - os: macos-14
+          - os: macos-latest
             artifact: macos-arm64
             filename: P4PSignaling-macos-arm64
     runs-on: ${{ matrix.os }}
@@ -97,6 +97,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+
+      - name: Install C Compiler (macOS Only)
+        if: runner.os == 'macOS'
+        run: xcode-select --install || true
 
       - name: Install build tool and dependencies
         run: |
