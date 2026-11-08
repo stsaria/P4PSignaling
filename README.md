@@ -12,7 +12,6 @@ operating system and CPU architecture from the
 
 - Linux x86_64: `P4PSignaling-linux-x86_64`
 - Windows x86_64: `P4PSignaling-windows-x86_64.exe`
-- macOS Intel: `P4PSignaling-macos-x86_64`
 - macOS Apple Silicon: `P4PSignaling-macos-arm64`
 
 On Linux and macOS, make the file executable once and run it:
