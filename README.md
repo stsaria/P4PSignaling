@@ -30,7 +30,8 @@ Configuration uses the same environment variables as the Python package. A
 
 On each version tag, CI builds and publishes the image to
 `ghcr.io/stsaria/p4psignaling:<tag>`. Stable releases are also published as
-`ghcr.io/stsaria/p4psignaling:latest`. To build an image locally:
+`ghcr.io/stsaria/p4psignaling:latest`. Pre-release tags are also published as
+`ghcr.io/stsaria/p4psignaling:pre-latest`.
 
 Release builds use P4PCore `main` for tags without `a`, `b`, or `rc`.
 Pre-release tags containing `a`, `b`, or `rc` use P4PCore `d`.

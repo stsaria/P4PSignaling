@@ -167,6 +167,7 @@ jobs:
           tags: |
             type=ref,event=tag
             type=raw,value=latest,enable=${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
+            type=raw,value=pre-latest,enable=${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
 
       - name: Select P4PCore ref
         id: p4pcore
