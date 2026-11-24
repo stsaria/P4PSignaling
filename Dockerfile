@@ -10,7 +10,8 @@ COPY . .
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --no-cache-dir git+https://github.com/stsaria/P4PCore.git@d \
+ARG P4PCORE_REF=d
+RUN pip install --no-cache-dir git+https://github.com/stsaria/P4PCore.git@${P4PCORE_REF} \
     && pip install --no-cache-dir .
 
 FROM python:3.13-slim

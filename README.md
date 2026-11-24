@@ -32,8 +32,11 @@ On each version tag, CI builds and publishes the image to
 `ghcr.io/stsaria/p4psignaling:<tag>`. Stable releases are also published as
 `ghcr.io/stsaria/p4psignaling:latest`. To build an image locally:
 
+Release builds use P4PCore `main` for tags without `a`, `b`, or `rc`.
+Pre-release tags containing `a`, `b`, or `rc` use P4PCore `d`.
+
 ```bash
-docker build -t p4psignaling:local .
+docker build --build-arg P4PCORE_REF=d -t p4psignaling:local .
 ```
 
 To run it locally with Docker Compose:

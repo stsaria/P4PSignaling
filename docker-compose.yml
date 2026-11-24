@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        P4PCORE_REF: d
     image: p4psignaling:local
     env_file:
       - .env

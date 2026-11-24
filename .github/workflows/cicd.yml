@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install git+https://github.com/stsaria/P4PCore.git
+          pip install git+https://github.com/stsaria/P4PCore.git@d
           pip install -e ".[dev]"
 
       - name: Run tests
@@ -55,7 +55,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build "Nuitka[onefile]"
-          pip install git+https://github.com/stsaria/P4PCore.git
+          P4PCORE_REF=main
+          case "${GITHUB_REF_NAME}" in
+            *a*|*b*|*rc*) P4PCORE_REF=d ;;
+          esac
+          pip install "git+https://github.com/stsaria/P4PCore.git@${P4PCORE_REF}"
           pip install .
 
       - name: Build Python package
@@ -109,7 +113,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "Nuitka[onefile]"
-          pip install git+https://github.com/stsaria/P4PCore.git
+          P4PCORE_REF=main
+          case "${GITHUB_REF_NAME}" in
+            *a*|*b*|*rc*) P4PCORE_REF=d ;;
+          esac
+          pip install "git+https://github.com/stsaria/P4PCore.git@${P4PCORE_REF}"
           pip install .
 
       - name: Build single-file binary
@@ -160,11 +168,23 @@ jobs:
             type=ref,event=tag
             type=raw,value=latest,enable=${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
 
+      - name: Select P4PCore ref
+        id: p4pcore
+        shell: bash
+        run: |
+          P4PCORE_REF=main
+          case "${GITHUB_REF_NAME}" in
+            *a*|*b*|*rc*) P4PCORE_REF=d ;;
+          esac
+          echo "ref=${P4PCORE_REF}" >> "${GITHUB_OUTPUT}"
+
       - name: Build and push container image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
+          build-args: |
+            P4PCORE_REF=${{ steps.p4pcore.outputs.ref }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
