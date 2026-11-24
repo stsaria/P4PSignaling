@@ -44,7 +44,6 @@ To run it locally with Docker Compose:
 
 ```bash
 cp .env.example .env
-printf 'ED25519_PRIVATE_KEY_HEX=%s\n' "$(openssl rand -hex 32)" >> .env
 docker compose up --build
 ```
 
