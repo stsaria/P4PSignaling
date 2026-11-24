@@ -1,0 +1,11 @@
+services:
+  p4psignaling:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: p4psignaling:local
+    env_file:
+      - .env
+    ports:
+      - "15987:15987/udp"
+    restart: unless-stopped

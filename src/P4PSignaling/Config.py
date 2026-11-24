@@ -10,6 +10,7 @@ load_dotenv(DOTENV_PATH)
 @dataclass(frozen=True)
 class Config:
     BIND_IPV4:str = os.getenv("BIND_IPV4", "0.0.0.0")
+    BIND_IPV6:str = os.getenv("BIND_IPV6", "::")
     BIND_PORT:int = int(os.getenv("BIND_PORT", "15987"))
     ED25519_PRIVATE_KEY_HEX:str = os.getenv("ED25519_PRIVATE_KEY_HEX", Ed25519Signer()._privateKey.private_bytes_raw().hex())
     GOSSIP_TTL_SECONDS:float = float(os.getenv("GOSSIP_TTL_SECONDS", "5"))

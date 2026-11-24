@@ -26,7 +26,8 @@ class P4PSignaling:
             ed25519Signer=Ed25519Signer(bytes.fromhex(Config.ED25519_PRIVATE_KEY_HEX)),
             magic=Config.MAGIC_STR.encode(encoding=STR_ENCODING),
             loggerHandlers=[handler],
-            netV4ListeningAddr=(Config.BIND_IPV4, Config.BIND_PORT)
+            netV4ListeningAddr=(Config.BIND_IPV4, Config.BIND_PORT) if Config.BIND_IPV4 else None,
+            netV6ListeningAddr=(Config.BIND_IPV6, Config.BIND_PORT) if Config.BIND_IPV6 else None
         )
 
         self._runner.net.semaphoreLimits = Config.NET_SEMAPHORE_LIMITS

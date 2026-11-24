@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p4psignaling
+  labels:
+    app: p4psignaling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: p4psignaling
+  template:
+    metadata:
+      labels:
+        app: p4psignaling
+    spec:
+      containers:
+        - name: p4psignaling
+          image: ghcr.io/stsaria/p4psignaling:latest
+          imagePullPolicy: Always
+          workingDir: /tmp
+          env:
+            - name: BIND_IPV4
+              value: "0.0.0.0"
+            - name: BIND_PORT
+              value: "15987"
+            - name: ED25519_PRIVATE_KEY_HEX
+              valueFrom:
+                secretKeyRef:
+                  name: p4psignaling
+                  key: ED25519_PRIVATE_KEY_HEX
+          ports:
+            - name: p4p
+              containerPort: 15987
+              protocol: UDP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p4psignaling
+spec:
+  type: LoadBalancer
+  selector:
+    app: p4psignaling
+  ports:
+    - name: p4p
+      port: 15987
+      targetPort: p4p
+      protocol: UDP

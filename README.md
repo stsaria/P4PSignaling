@@ -26,6 +26,56 @@ Use the corresponding macOS filename on macOS. On Windows, run
 Configuration uses the same environment variables as the Python package. A
 `.env` file can also be placed next to the executable.
 
+## Run with Docker and Kubernetes
+
+On each version tag, CI builds and publishes the image to
+`ghcr.io/stsaria/p4psignaling:<tag>`. Stable releases are also published as
+`ghcr.io/stsaria/p4psignaling:latest`. To build an image locally:
+
+```bash
+docker build -t p4psignaling:local .
+```
+
+To run it locally with Docker Compose:
+
+```bash
+cp .env.example .env
+printf 'ED25519_PRIVATE_KEY_HEX=%s\n' "$(openssl rand -hex 32)" >> .env
+docker compose up --build
+```
+
+The Compose configuration publishes UDP port `15987` and loads configuration
+from `.env`. Keep the private key unchanged across restarts to preserve the
+server identity.
+
+Before deploying, create the `p4psignaling` Kubernetes Secret with a
+64-character hexadecimal Ed25519 private key as `ED25519_PRIVATE_KEY_HEX`.
+Use a secret manager for production, and keep the same key across pod restarts
+to preserve the server identity. For a local setup, generate a key in a
+temporary file and create the Secret:
+
+```bash
+key_file="$(mktemp)"
+trap 'rm -f "$key_file"' EXIT
+openssl rand -hex 32 > "$key_file"
+kubectl create secret generic p4psignaling \
+  --from-file=ED25519_PRIVATE_KEY_HEX="$key_file"
+```
+
+Then deploy the single-replica workload and UDP LoadBalancer Service:
+
+```bash
+kubectl apply -f deploy/k8s.yaml
+kubectl get service p4psignaling
+kubectl logs deployment/p4psignaling
+```
+
+The cluster must support UDP LoadBalancer services, and UDP port `15987` must
+be reachable by peers. The manifest uses the `latest` image tag; pin the
+Deployment to a version tag for controlled upgrades. CI publishes images but
+does not deploy to a cluster; automatic deployment requires cluster-specific
+credentials and configuration.
+
 ## Run from Python
 
 The release binary is recommended for normal use. To run the package with
